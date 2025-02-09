@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lì xì may mắn</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="https://web.nvnstatic.net/js/events/newyear.js"></script>
+  <style>
+    body {
+      background-image: url("img/bg.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      text-align: center;
+    }
+
+    .lixi-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      justify-items: center;
+      margin-top: 20px;
+    }
+
+    .lixi {
+      width: 120px;
+      height: 200px;
+      background-position-y: -20px;
+      background-image: url("img/lixi.png");
+      background-repeat: no-repeat;
+      background-size: cover;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+    }
+
+    .lixi:hover {
+      transform: scale(1.05);
+    }
+
+    .popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .popup-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 250px;
+    }
+
+    .popup.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    p.text {
+      color: red;
+      font-weight: bold;
+    }
+
+    .btn {
+      background-color: red;
+      color: yellow;
+      outline: none;
+      border: none;
+    }
+
+    .btn:hover {
+      transform: scale(0.95);
+      background-color: yellow;
+      color: red;
+    }
+
+    .toggle-dot,
+    .toggle-dot1,
+    .toggle-dot2,
+    .toggle-dot3 {
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50%;
+      position: fixed;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      font-size: 16px;
+      transition: background-color 0.3s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-dot,
+    .toggle-dot1 {
+      bottom: 20px;
+    }
+
+    .toggle-dot2,
+    .toggle-dot3 {
+      top: 20px;
+    }
+
+    .toggle-dot,
+    .toggle-dot3 {
+      right: 20px;
+    }
+
+    .toggle-dot1,
+    .toggle-dot2 {
+      left: 20px;
+    }
+
+    /* Overlay nền đen */
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.5s;
+      z-index: 1000;
+    }
+
+    /* Chữ Chúc Mừng Năm Mới */
+    .tet-text {
+      font-size: 40px;
+      font-weight: bold;
+      color: #FFD700;
+      text-shadow: 2px 2px 10px red;
+      animation: bounce 1.5s infinite alternate;
+    }
+
+    /* Animation */
+    @keyframes bounce {
+      0% {
+        transform: translateY(0);
+      }
+
+      100% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes fadeInOut {
+      0% {
+        opacity: 0.2;
+        transform: scale(0.8);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .toggle-dot {
+        width: 10px;
+        height: 10px;
+        font-size: 14px;
+      }
+
+      .tet-text {
+        font-size: 24px;
+      }
+
+      .lixi-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="overlay">
+    <div class="tet-text">🎉 Chúc Mừng Năm Mới! 🎉</div>
+    <div class="tet-text">🎊 Cùng nhau thử vận may 2025 🎊</div>
+  </div>
+  <audio id="lixiAudio" src="lixi.mp3"></audio>
+
+  <p class="text mt-3">Thầy Vũ Trọng Hiếu chúc mừng năm mới!</p>
+  <button class="btn" id="shuffle">TRỘN</button>
+  <div class="lixi-container">
+    <div class="toggle-dot" id="toggleDot">🔴</div>
+    <div class="toggle-dot1">🔴</div>
+    <div class="toggle-dot2">🔴</div>
+    <div class="toggle-dot3">🔴</div>
+    <script>
+      let rewards = [
+        "Một tràng vỗ tay", "Chúc em vạn sự như ý, an khang thịnh vượng", "Chúc bạn may mắn lần sau!",
+        "1.000đ", "2.000đ", "5.000đ", "10.000đ", "20.000đ", "100.000đ", "200.000đ", "500.000đ", "50.000đ"
+      ];
+
+      let rewards2 = [
+        "Một tràng vỗ tay", "Chúc em vạn sự như ý, an khang thịnh vượng", "Chúc bạn may mắn lần sau!",
+        "1.000đ", "2.000đ", "5.000đ", "10.000đ", "20.000đ", "100.000đ", "200.000đ", "500.000đ", "50.000đ"
+      ];
+
+      for (let i = 0; i < 12; i++) {
+        document.write(`<div class='lixi' data-id='${i}'></div>`);
+      }
+    </script>
+  </div>
+
+  <div class="popup" id="popup">
+    <div class="popup-content" id="popup-content"></div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $('#shuffle').click(function () {
+        let audio = document.getElementById("lixiAudio");
+        let overlay = $("#overlay");
+
+        // Hiện overlay và phát nhạc
+        overlay.css({ visibility: "visible", opacity: "1" });
+        audio.play();
+
+        let boxes = $('.lixi');
+        let parent = $('.lixi-container');
+        let count = 0;
+        let shuffleInterval = setInterval(() => {
+          let shuffled = boxes.sort(() => Math.random() - 0.5);
+          parent.append(shuffled);
+          count++;
+          if (count >= 10) clearInterval(shuffleInterval);
+        }, 500);
+
+        // Ẩn overlay sau 15 giây
+        setTimeout(() => {
+          overlay.css({ visibility: "hidden", opacity: "0" });
+          audio.pause();
+          audio.currentTime = 0; // Reset thời gian về 0
+        }, 15000);
+      });
+      let useAltRewards = false;
+
+      function toggleRewards() {
+        useAltRewards = !useAltRewards;
+        $("#toggleDot").toggleClass("green");
+        $("#toggleDot").html(useAltRewards ? "🟠" : "🔴");
+      }
+
+      $("#toggleDot").click(function () {
+        toggleRewards();
+      });
+
+      $(document).keydown(function (event) {
+        if (event.key === "q" || event.key === "Q") {
+          toggleRewards();
+        }
+      });
+
+      $(".lixi").click(function () {
+        let id = $(this).data("id");
+        let rewardText = useAltRewards ? rewards2[id] : rewards[id];
+
+        $("#popup-content").html(`<h4>🎊</h4><p>${rewardText}</p>`);
+        $("#popup").addClass("show");
+      });
+
+      $("#popup").click(function () {
+        $(this).removeClass("show");
+      });
+    });
+  </script>
+</body>
+
+</html>
